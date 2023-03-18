@@ -17,6 +17,9 @@
 		646598FE29C606680067D29A /* BookShelfUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 646598FD29C606680067D29A /* BookShelfUITestsLaunchTests.swift */; };
 		6465991A29C6107F0067D29A /* ConfigurableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6465991929C6107F0067D29A /* ConfigurableView.swift */; };
 		6465991D29C6115D0067D29A /* ListOfBooksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6465991C29C6115D0067D29A /* ListOfBooksView.swift */; };
+		64F4581D29C614BB0004ED04 /* NetworkinError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64F4581C29C614BB0004ED04 /* NetworkinError.swift */; };
+		64F4581F29C614CB0004ED04 /* Networking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64F4581E29C614CB0004ED04 /* Networking.swift */; };
+		64F4582129C614D90004ED04 /* NetworkingEndPoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64F4582029C614D90004ED04 /* NetworkingEndPoint.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -51,6 +54,9 @@
 		646598FD29C606680067D29A /* BookShelfUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookShelfUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		6465991929C6107F0067D29A /* ConfigurableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigurableView.swift; sourceTree = "<group>"; };
 		6465991C29C6115D0067D29A /* ListOfBooksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListOfBooksView.swift; sourceTree = "<group>"; };
+		64F4581C29C614BB0004ED04 /* NetworkinError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkinError.swift; sourceTree = "<group>"; };
+		64F4581E29C614CB0004ED04 /* Networking.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Networking.swift; sourceTree = "<group>"; };
+		64F4582029C614D90004ED04 /* NetworkingEndPoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkingEndPoint.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -190,6 +196,9 @@
 		6465992129C6125F0067D29A /* Networking */ = {
 			isa = PBXGroup;
 			children = (
+				64F4581C29C614BB0004ED04 /* NetworkinError.swift */,
+				64F4581E29C614CB0004ED04 /* Networking.swift */,
+				64F4582029C614D90004ED04 /* NetworkingEndPoint.swift */,
 			);
 			path = Networking;
 			sourceTree = "<group>";
@@ -324,11 +333,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				64F4581D29C614BB0004ED04 /* NetworkinError.swift in Sources */,
 				6465991D29C6115D0067D29A /* ListOfBooksView.swift in Sources */,
 				646598DF29C606660067D29A /* ListOfBooksViewController.swift in Sources */,
 				646598DB29C606660067D29A /* AppDelegate.swift in Sources */,
+				64F4582129C614D90004ED04 /* NetworkingEndPoint.swift in Sources */,
 				6465991A29C6107F0067D29A /* ConfigurableView.swift in Sources */,
 				646598DD29C606660067D29A /* SceneDelegate.swift in Sources */,
+				64F4581F29C614CB0004ED04 /* Networking.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
