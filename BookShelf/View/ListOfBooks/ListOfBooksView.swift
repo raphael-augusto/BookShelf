@@ -5,20 +5,24 @@
 //  Created by Raphael Augusto on 18/03/23.
 //
 
-import Foundation
-
 import UIKit
-
-//protocol ListOfBooksDelegate: AnyObject {
-//    func <#actionButton#> ()
-//}
 
 
 final class ListOfBooksView: UIView {
     
     //MARK: - Delegate
+    let collection = CollectionViewTableViewCell()
+    
     
     //MARK: - Properts
+    private lazy var tableView: UITableView = {
+        let tableView = UITableView(frame: .zero, style: .grouped)
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.register(CollectionViewTableViewCell.self, forCellReuseIdentifier: CollectionViewTableViewCell.identifier)
+        
+        return tableView
+    }()
+    
     
     //MARK: - Inits
     override init(frame: CGRect) {
@@ -37,26 +41,44 @@ final class ListOfBooksView: UIView {
     }
 }
 
-//MARK: - Components and Constraints
-extension ListOfBooksView : ConfigurableView {
-    func initView() {
-        backgroundColor = .red
-    }
+//MARK: - func configurable
+extension ListOfBooksView {
     
-    func initSubviews() {
-        
-    }
-    
-    func initConstraints() {
-        
+    public func loadResultTableView() {
+        self.tableView.reloadData()
     }
     
     
+    //tableView
+    public func tableViewDelegateDataSource(tableViewDelegate: UITableViewDelegate, tableViewDataSource: UITableViewDataSource) {
+        self.tableView.delegate    = tableViewDelegate
+        self.tableView.dataSource  = tableViewDataSource
+    }
+    
+    
+    //collectionView Cell
+    public func collectionView(collectionViewDelegate: UICollectionViewDelegate, collectionViewDataSource: UICollectionViewDataSource) {
+        collection.collectionViewDelegateDataSource(collectionViewDelegate: collectionViewDelegate, collectionViewDataSource: collectionViewDataSource)
+    }
 }
 
 
-//MARK: - Action
-//extension ListOfBooksView: ListOfBooksDelegate {
-//
-//}
-
+//MARK: - Components and Constraints
+extension ListOfBooksView : ConfigurableView {
+    func initView() {
+        backgroundColor = .systemBackground
+    }
+    
+    func initSubviews() {
+        addSubview(tableView)
+    }
+    
+    func initConstraints() {
+        NSLayoutConstraint.activate([
+            tableView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor),
+            tableView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            tableView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor),
+        ])
+    }
+}
