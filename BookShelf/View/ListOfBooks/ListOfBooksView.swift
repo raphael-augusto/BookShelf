@@ -8,23 +8,48 @@
 import UIKit
 
 
+
+protocol ListOfBooksViewOutput: UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate {}
+
+protocol ListOfBooksViewInput {
+    func loadResultTableView()
+    func searchBarIsHidden(_ isHidden: Bool)
+}
+
 final class ListOfBooksView: UIView {
-    
-    //MARK: - Delegate
-    let collection = CollectionViewTableViewCell()
-    
-    
+        
     //MARK: - Properts
+    private lazy var searchBar: UISearchBar = {
+        let searchBar = UISearchBar(frame: CGRect(x: 0, y: 0, width: bounds.width, height: 70))
+        searchBar.placeholder = "Search for book"
+        searchBar.searchBarStyle = .minimal
+        //searchBar.showsCancelButton = true
+        
+        return searchBar
+    }()
+
+    
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.register(CollectionViewTableViewCell.self, forCellReuseIdentifier: CollectionViewTableViewCell.identifier)
+        tableView.register(ListOfBooksViewCell.self, forCellReuseIdentifier: ListOfBooksViewCell.identifier)
+        tableView.tableHeaderView = searchBar
         
         return tableView
     }()
     
     
     //MARK: - Inits
+    init(delegate: ListOfBooksViewOutput) {
+        super.init(frame: .zero)
+        
+        setup()
+        
+        tableView.dataSource = delegate
+        tableView.delegate = delegate
+        searchBar.delegate = delegate
+    }
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         
@@ -41,24 +66,16 @@ final class ListOfBooksView: UIView {
     }
 }
 
-//MARK: - func configurable
-extension ListOfBooksView {
+
+//MARK: - Functions configuration
+extension ListOfBooksView: ListOfBooksViewInput {
     
-    public func loadResultTableView() {
+    func loadResultTableView() {
         self.tableView.reloadData()
     }
     
-    
-    //tableView
-    public func tableViewDelegateDataSource(tableViewDelegate: UITableViewDelegate, tableViewDataSource: UITableViewDataSource) {
-        self.tableView.delegate    = tableViewDelegate
-        self.tableView.dataSource  = tableViewDataSource
-    }
-    
-    
-    //collectionView Cell
-    public func collectionView(collectionViewDelegate: UICollectionViewDelegate, collectionViewDataSource: UICollectionViewDataSource) {
-        collection.collectionViewDelegateDataSource(collectionViewDelegate: collectionViewDelegate, collectionViewDataSource: collectionViewDataSource)
+    func searchBarIsHidden(_ isHidden: Bool) {
+        searchBar.isHidden = isHidden
     }
 }
 
@@ -82,3 +99,5 @@ extension ListOfBooksView : ConfigurableView {
         ])
     }
 }
+
+

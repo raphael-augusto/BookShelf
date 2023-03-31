@@ -8,70 +8,98 @@
 import Foundation
 
 
-protocol ListOfBooksViewModelDelegate: AnyObject {
-    func didUpdateData()
+protocol ListOfBooksViewModelOutput: AnyObject {
     func didFinishSuccess()
-    func didFinishFailure()
+    func didFinishFailure(message: String)
 }
 
-protocol ListOfBooksViewModelProtocol {
-    var delegate: ListOfBooksViewModelDelegate? { get set }
+protocol ListOfBooksViewModelInput {
+    func fetchBooks()
+    func getNumberOfSections() -> Int
+    func getNumberOfRowsInSection(section: Int) -> Int
+    func getTitleForHeaderInSection(section: Int) -> String?
+    func getCellForRowAt(indexPath: IndexPath) -> BooksData?
+}
+
+
+final class ListOfBooksViewModel: ListOfBooksViewModelInput {
     
-    var dataValueBooks: [BooksData] { get }
-    func getDataBooks()
-//    func countDataBooks() -> Int
-    func getDataBooksIndexPath(indexPath: IndexPath) -> BooksData
-}
-
-
-final class ListOfBooksViewModel: ListOfBooksViewModelProtocol {
-   
+    
     //MARK: - Networking and Delegate
-    private let networking = Networking()
-    weak var delegate: ListOfBooksViewModelDelegate?
+    private let networkingService: NetworkingServiceProtocol
+    weak var delegate: ListOfBooksViewModelOutput?
     
     
     //MARK: - Variables
-    private(set) var dataValueBooks: [BooksData]  = []
+    private(set) var booksData: [BooksData]  = []
+    private(set) var groupedBooksByCategory: [String: [BooksData]] = [:]
+    private(set) var bookTitle: [BooksData] = []
     
     
     //MARK: - Init
-    init(delegate: ListOfBooksViewModelDelegate) {
-        self.delegate = delegate
+    init(networkingService: NetworkingServiceProtocol = NetworkingService()) {
+        self.networkingService = networkingService
     }
     
     
     //MARK: - Request api
-    func getDataBooks() {
-        networking.get(endpoint: .books) { [weak self] (response: Result<ListOfBooks, NetworkinError>) in
-            guard let self = self else { return }
-            
-            switch response {
-            case let .success(data):
-                self.dataValueBooks = data
-//                print("Data Books -> \(self.dataValueBooks)")
+    func fetchBooks() {
+        networkingService.getBooks { [weak self] (result: Result<[BooksData], NetworkinError>) in
+            switch result {
+            case .success(let books):
+                self?.booksData = books
+                self?.groupingOfBooksByCategories()
+                self?.delegate?.didFinishSuccess()
                 
-                self.delegate?.didFinishSuccess()
-                
-            case let .failure(error):
-                print("ERROR GET ListOfBooksViewModel -> \(error.localizedDescription)")
-                
-                self.delegate?.didFinishFailure()
+            case .failure(let error):
+                self?.delegate?.didFinishFailure(message: "Error ListOfBooksViewModel -> \(error)")
             }
         }
     }
-
+    
+    //função para agrupamento por categorio do livro
+    private func groupingOfBooksByCategories() {
+        for book in booksData {
+            if let category = book.category {
+                if groupedBooksByCategory[category] != nil {
+                    groupedBooksByCategory[category]?.append(book)
+                } else {
+                    groupedBooksByCategory[category] = [book]
+                }
+            }
+        }
+    }
+    
+    
     //MARK: - TableView
-//    func countDataBooks() -> Int {
-//        return dataValueBooks.count
-//    }
-    
-    var countDataBooks: Int {
-        return dataValueBooks.count
+    func getNumberOfSections() -> Int {
+        return groupedBooksByCategory.count
     }
     
-    func getDataBooksIndexPath(indexPath: IndexPath) -> BooksData {
-        return dataValueBooks[indexPath.row]
+    
+    func getNumberOfRowsInSection(section: Int) -> Int {
+        let sectionKey = Array(groupedBooksByCategory.keys)[section]
+        return groupedBooksByCategory[sectionKey]?.count ?? 0
     }
-      
+    
+    
+    func getTitleForHeaderInSection(section: Int) -> String? {
+        let sectionKey = Array(groupedBooksByCategory.keys)[section]
+        return groupedBooksByCategory[sectionKey]?.first?.category
+    }
+    
+    
+    func getCellForRowAt(indexPath: IndexPath) -> BooksData? {
+        let indexPathSection = indexPath.section
+        let indexPathRow = indexPath.row
+
+        let sectionKey = Array(groupedBooksByCategory.keys)[indexPathSection]
+
+        guard let booksDataArray = groupedBooksByCategory[sectionKey], indexPathRow < booksDataArray.count else { return nil }
+
+        return booksDataArray[indexPathRow]
+    }
+
+    
+
 }

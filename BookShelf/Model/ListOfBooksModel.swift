@@ -1,5 +1,5 @@
 //
-//  ListOfBooksModelswift.swift
+//  ListOfBooksModel.swift
 //  BookShelf
 //
 //  Created by Raphael Augusto on 18/03/23.
@@ -9,6 +9,8 @@ import Foundation
 
 
 // MARK: - WelcomeElement
+typealias ListOfBooks = [BooksData]
+
 struct BooksData: Codable {
     let author: String?
     let category: String?
@@ -20,5 +22,7 @@ struct BooksData: Codable {
     let title: String?
 }
 
-typealias ListOfBooks = [BooksData]
-
+struct Books {
+    let title: String?
+}
+typealias BookTitle = [String]

@@ -7,60 +7,67 @@
 
 import UIKit
 
-class ListOfBooksViewController: UIViewController {
-
-    //MARK: - ViewModel
-    private lazy var listOfBooksViewModel = ListOfBooksViewModel(delegate: self)
+final class ListOfBooksViewController: UIViewController, ListOfBooksViewOutput  {
     
+    //MARK: - ViewModel
+    private lazy var listOfBooksViewModel: ListOfBooksViewModelInput = {
+        let vm = ListOfBooksViewModel()
+        vm.delegate = self
+        
+        return vm
+    }()
+
     
     //MARK: - Properts
-    private lazy var listOfBooksView: ListOfBooksView = {
-        let view = ListOfBooksView()
+    private lazy var listOfBooksView: ListOfBooksViewInput = {
+        let view = ListOfBooksView(delegate: self)
         
         return view
     }()
     
     
+    var titleBooks:String = ""
+    
     //MARK: - Life cycle
     override func loadView() {
-        self.view = listOfBooksView
+        self.view = listOfBooksView as? UIView
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        delegateScreen()
-        config()
+        fetchForBooksData()
+        didFinishSuccess()
         
         
     }
     
-    private func config() {
-        listOfBooksViewModel.getDataBooks()
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        if scrollView.contentOffset.y < 0 {
+            scrollView.contentOffset.y = 0
+            listOfBooksView.searchBarIsHidden(false)
+        } else {
+            listOfBooksView.searchBarIsHidden(true)
+        }
     }
-    
-    private func delegateScreen() {
-        listOfBooksView.tableViewDelegateDataSource(tableViewDelegate: self, tableViewDataSource: self)
-        listOfBooksView.collectionView(collectionViewDelegate: self, collectionViewDataSource: self)
-    }
+
 }
 
 //MARK: - Request API
-extension ListOfBooksViewController: ListOfBooksViewModelDelegate {
-    
-    func didUpdateData() {
+extension ListOfBooksViewController: ListOfBooksViewModelOutput {
 
+    private func fetchForBooksData() {
+        listOfBooksViewModel.fetchBooks()
     }
-    
+       
     func didFinishSuccess() {
         DispatchQueue.main.async { [self] in
             listOfBooksView.loadResultTableView()
         }
     }
     
-    func didFinishFailure() {
-        print("ERROR -> ListOfBooksViewController")
-    }
+    func didFinishFailure(message: String) {}
+    
 }
 
 
@@ -68,53 +75,73 @@ extension ListOfBooksViewController: ListOfBooksViewModelDelegate {
 extension ListOfBooksViewController: UITableViewDataSource, UITableViewDelegate {
     
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 20
+        return listOfBooksViewModel.getNumberOfSections()
     }
     
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 1
+        return listOfBooksViewModel.getNumberOfRowsInSection(section: section)
+    }
+    
+    
+//    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+//        return listOfBooksViewModel.getTitleForHeaderInSection(section: section)
+//
+//    }
+    
+    
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let headerView = UIView.init(frame: CGRect.init(x: 0, y: 0, width: tableView.frame.width, height: 50))
+
+        let label = UILabel()
+        label.frame = CGRect.init(x: 5, y: 5, width: headerView.frame.width-10, height: headerView.frame.height-10)
+
+        label.text = listOfBooksViewModel.getTitleForHeaderInSection(section: section)
+        label.font = UIFont.systemFont(ofSize: 20, weight: .bold)
+        label.textColor = .darkGray
+        headerView.addSubview(label)
+        
+
+        return headerView
     }
     
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: CollectionViewTableViewCell.identifier, for: indexPath) as? CollectionViewTableViewCell else { return UITableViewCell() }
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: ListOfBooksViewCell.identifier, for: indexPath) as? ListOfBooksViewCell else { return UITableViewCell() }
         
+        
+        cell.setupCell(cell: self.listOfBooksViewModel.getCellForRowAt(indexPath: indexPath))
+        
+
         return cell
-        
     }
+
     
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        // Aqui você pode executar alguma ação ao selecionar um livro, por exemplo.
+    }
+
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 200
     }
-    
-    
+
+
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return 40
     }
 }
 
 
-//MARK: - CollectionView
-extension ListOfBooksViewController: UICollectionViewDelegate, UICollectionViewDataSource {
-
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 10
-    }
-
-
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ListOfBooksViewCell.indentifier, for: indexPath) as? ListOfBooksViewCell else { return UICollectionViewCell() }
+extension ListOfBooksViewController: UISearchBarDelegate {
         
-        cell.backgroundColor = .green
-        
-        return cell
-    }
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        // Quando o texto da barra de pesquisa muda
+        titleBooks = searchText
     
-//    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-//            return CGSize(width: 100, height: 100)
-//        }
 
-    
+        listOfBooksView.loadResultTableView()
+    }
 }
+
+

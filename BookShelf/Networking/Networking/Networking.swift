@@ -10,7 +10,6 @@ import Foundation
 
 
 protocol NetworkingProtocol {
-    
     func get<T: Decodable> (endpoint: NetworkingEndPoint, completion: @escaping (Result<T, NetworkinError>) -> Void)
 }
 
